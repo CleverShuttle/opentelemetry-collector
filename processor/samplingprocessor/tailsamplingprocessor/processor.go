@@ -155,6 +155,11 @@ func (tsp *tailSamplingSpanProcessor) samplingPolicyOnTick() {
 		for i, policy := range tsp.policies {
 			policyEvaluateStartTime := time.Now()
 			decision, err := policy.Evaluator.Evaluate(id, trace)
+			if decision == sampling.Sampled {
+				decision = sampling.NotSampled
+			} else if decision == sampling.NotSampled {
+				decision = sampling.Sampled
+			}
 			stats.Record(
 				policy.ctx,
 				statDecisionLatencyMicroSec.M(int64(time.Since(policyEvaluateStartTime)/time.Microsecond)))
